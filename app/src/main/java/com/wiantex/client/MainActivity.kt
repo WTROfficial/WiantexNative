@@ -91,14 +91,14 @@ class MainActivity : AppCompatActivity() {
             hint = "Kullanıcı adı veya e-posta"
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
-            singleLine = true
+            setSingleLine(true)
         }
         val passwordInput = EditText(this).apply {
             hint = "Şifre"
             inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
-            singleLine = true
+            setSingleLine(true)
         }
         val status = label("")
 
@@ -195,7 +195,7 @@ class MainActivity : AppCompatActivity() {
             hint = "Kullanıcı adı"
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
-            singleLine = true
+            setSingleLine(true)
         }
         val body = EditText(this).apply {
             hint = "Mesaj yaz…"
@@ -293,7 +293,7 @@ class MainActivity : AppCompatActivity() {
             hint = "Kullanıcı adı (opsiyonel)"
             setTextColor(Color.WHITE)
             setHintTextColor(Color.GRAY)
-            singleLine = true
+            setSingleLine(true)
         }
         val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
 
