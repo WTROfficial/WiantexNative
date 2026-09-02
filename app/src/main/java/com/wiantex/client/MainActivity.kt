@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private lateinit var api: Api
-    private val background = Color.rgb(9, 8, 20)
+    private val bgColor = Color.rgb(9, 8, 20)
     private val purple = Color.rgb(96, 71, 215)
     private var csrf = ""
     private var username: String? = null
@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     private fun base(title: String): LinearLayout {
         return LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundColor(background)
+            setBackgroundColor(bgColor)
             setPadding(18, 18, 18, 18)
 
             addView(TextView(this@MainActivity).apply {
