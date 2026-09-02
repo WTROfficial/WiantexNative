@@ -1,3 +1,0 @@
-namespace WiantexApp;
-public class MembersPage:BaseContentPage
-{ public MembersPage():base("Üyeler"){var users=new[]{"elation","ysfacar","MertBaharcik","CratOS","BOGAbg"};var cv=new CollectionView{ItemsSource=users,ItemTemplate=new DataTemplate(()=>new Border{Padding=14,Margin=new Thickness(0,0,0,8),Stroke=Color.FromArgb("#28223D"),BackgroundColor=Color.FromArgb("#151222"),StrokeShape=new RoundRectangle{CornerRadius=14},Content=new HorizontalStackLayout{Spacing=12,Children={new Ellipse{WidthRequest=42,HeightRequest=42,Fill=Brushes.Gray},new Label{TextColor=Color.FromArgb("#F7F5FF"),VerticalTextAlignment=TextAlignment.Center}}}})};Content=new VerticalStackLayout{Padding=18,Children={H("Üyeler"),M("Wiantex topluluğu"),cv}};} }

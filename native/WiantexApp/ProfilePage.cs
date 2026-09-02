@@ -1,7 +1,0 @@
-using WiantexApp.Services;
-namespace WiantexApp;
-public class ProfilePage:BaseContentPage
-{
-    public ProfilePage(){Title="Profil";var name=new Label{FontSize=22,FontAttributes=FontAttributes.Bold};var role=new Label{TextColor=Color.FromArgb("#9B95AF")};var bio=new Label{TextColor=Color.FromArgb("#9B95AF")};var stats=new Label{TextColor=Color.FromArgb("#F7F5FF")};var avatar=new Image{WidthRequest=112,HeightRequest=112,Aspect=Aspect.AspectFill};var login=new Button{Text="Giriş Yap"};login.Clicked+=async(_,_)=>await Shell.Current.GoToAsync(nameof(LoginPage));Content=new ScrollView{Content=new VerticalStackLayout{Padding=18,Spacing=12,Children={H("Profil"),Card(new VerticalStackLayout{HorizontalOptions=LayoutOptions.Center,Children={avatar,name,role,bio,stats,login}})}}};Loaded+=async(_,_)=>await Load(name,role,bio,stats,avatar,login);}
-    async Task Load(Label name,Label role,Label bio,Label stats,Image avatar,Button login){try{using var d=await AppState.Api.ProfileAsync();var p=d.RootElement.GetProperty("profile");name.Text=p.GetProperty("username").GetString();role.Text=p.GetProperty("role_name").GetString();bio.Text=p.GetProperty("bio").GetString();stats.Text=$"Konular: {p.GetProperty("topic_count").GetInt32()}  ·  Mesajlar: {p.GetProperty("post_count").GetInt32()}  ·  Beğeniler: {p.GetProperty("like_count").GetInt32()}";var path=p.GetProperty("avatar_path").GetString();if(!string.IsNullOrWhiteSpace(path))avatar.Source=new UriImageSource{Uri=new Uri(new Uri("https://www.wiantex.com/"),path),CachingEnabled=false};login.IsVisible=false;}catch{} }
-}

@@ -1,15 +1,10 @@
-# Wiantex Native Android + Windows — Connected API Build
+# Wiantex Native Android Client (Kotlin)
 
-Native MAUI app (no WebView) connected to Wiantex JSON APIs for login, forum, messages, profile and notifications.
+Pure native Android project written in Kotlin (no WebView, no MAUI). Connects to Wiantex native JSON APIs:
+- Login/session
+- Forum
+- Messages
+- Profile
+- Notifications
 
-Backend patch:
-- `/api/native/login`
-- `/api/native/me`
-- `/api/native/forum`
-- `/api/native/messages`
-- `/api/native/profile`
-- `/api/native/notifications`
-
-The PHP backend keeps the existing authentication/session and SQLite data. The native client persists the PHP session cookie in its `CookieContainer` and stores the CSRF token returned by login.
-
-Build requirements: .NET 9 SDK + MAUI workloads on the developer machine, plus the normal Android/Windows build tooling.
+Open in Android Studio and build APK with Build > Generate App Bundle / APK > Generate APK.

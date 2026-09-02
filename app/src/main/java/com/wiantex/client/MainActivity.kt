@@ -1,0 +1,32 @@
+package com.wiantex.client
+
+import android.graphics.Color
+import android.os.Bundle
+import android.view.View
+import android.widget.*
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import com.google.android.material.button.MaterialButton
+import kotlinx.coroutines.launch
+import org.json.JSONObject
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var api: Api; private lateinit var root: LinearLayout
+    private val bg=Color.rgb(9,8,20); private val card=Color.rgb(19,17,38); private val cyan=Color.rgb(49,200,255); private var csrf=""; private var username:String?=null
+    override fun onCreate(b:Bundle?){super.onCreate(b); api=Api(this); username=api.username(); csrf=api.csrf(); show(if(username.isNullOrBlank()) "login" else "home")}
+    private fun base(title:String): LinearLayout { root=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL; setBackgroundColor(bg); setPadding(18,18,18,18)}; val t=TextView(this).apply{text=title;textSize=26f;setTextColor(Color.WHITE);setPadding(0,0,0,16)}; root.addView(t); return root }
+    private fun button(s:String, action:()->Unit): MaterialButton = MaterialButton(this).apply{text=s;setOnClickListener{action()};setTextColor(Color.WHITE);setBackgroundColor(Color.rgb(96,71,215))}
+    private fun text(s:String,size:Float=14f)=TextView(this).apply{text=s;textSize=size;setTextColor(Color.LTGRAY);setPadding(0,5,0,5)}
+    private fun scroll(): ScrollView = ScrollView(this).apply{layoutParams=LinearLayout.LayoutParams(-1,0,1f)}
+    private fun show(which:String){ when(which){"login"->login();"home"->home();"forum"->forum();"messages"->messages();"notifications"->notifications();"profile"->profile()} }
+    private fun login(){ val l=base("Wiantex"); l.addView(text("Native Android Client",14f)); val u=EditText(this).apply{hint="Kullanıcı adı veya e-posta";setTextColor(Color.WHITE);setHintTextColor(Color.GRAY)}; val p=EditText(this).apply{hint="Şifre";inputType=0x81;setTextColor(Color.WHITE);setHintTextColor(Color.GRAY)}; val status=text(""); l.addView(u);l.addView(p);l.addView(button("Giriş Yap"){ status.text=""; lifecycleScope.launch{try{val j=api.login(u.text.toString().trim(),p.text.toString()); if(j.optBoolean("ok")){val us=j.getJSONObject("user");username=us.optString("username");csrf=j.optString("csrf_token");api.saveSession(username!!,csrf);show("home")} else status.text=j.optString("message","Giriş başarısız")}catch(e:Exception){status.text=e.message}}}}); l.addView(status);setContentView(l)}
+    private fun navButtons(): LinearLayout = LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=1; val names=arrayOf("Ana Sayfa" to "home","Forum" to "forum","Mesaj" to "messages","Bildirim" to "notifications","Profil" to "profile"); names.forEach{val b=button(it.first){show(it.second)}; b.textSize=11f; addView(b,LinearLayout.LayoutParams(0,58,1f))}}
+    private fun attachNav(l:LinearLayout){l.addView(navButtons(),LinearLayout.LayoutParams(-1,64))}
+    private fun home(){ val l=base("Ana Sayfa");l.addView(text("Hoş geldin, ${username ?: "Wiantex"}",18f));l.addView(text("Forum, mesajlar, bildirimler ve profil tek uygulamada."));l.addView(button("Forum" ){show("forum")});l.addView(button("Profilim"){show("profile")});attachNav(l);setContentView(l)}
+    private fun forum(){ val l=base("Forum"); val s=scroll(); val c=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL};s.addView(c);l.addView(s);attachNav(l);setContentView(l);lifecycleScope.launch{try{val j=api.forum();val a=j.getJSONArray("topics");for(i in 0 until a.length()){val t=a.getJSONObject(i);c.addView(text("${t.optString("title")}\n${t.optString("username")} · ${t.optString("category_name")}",16f))}}catch(e:Exception){c.addView(text(e.message?:"Hata"))}}}
+    private fun messages(){ val l=base("Mesajlar");val target=EditText(this).apply{hint="Kullanıcı adı";setTextColor(Color.WHITE);setHintTextColor(Color.GRAY)};val body=EditText(this).apply{hint="Mesaj yaz…";setTextColor(Color.WHITE);setHintTextColor(Color.GRAY);minLines=3};val out=scroll();val c=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL};out.addView(c);l.addView(target);l.addView(button("Konuşmayı Aç"){loadMessages(target,c)});l.addView(out);l.addView(body);l.addView(button("Gönder"){lifecycleScope.launch{try{api.sendMessage(target.text.toString().trim(),body.text.toString().trim(),csrf);body.setText("");loadMessages(target,c)}catch(e:Exception){Toast.makeText(this@MainActivity,e.message,Toast.LENGTH_LONG).show()}}});attachNav(l);setContentView(l)}
+    private fun loadMessages(target:EditText,c:LinearLayout){if(target.text.isNullOrBlank())return;lifecycleScope.launch{try{val a=api.messages(target.text.toString().trim()).getJSONArray("messages");c.removeAllViews();for(i in 0 until a.length()){val m=a.getJSONObject(i);c.addView(text("${m.optString("sender_username")}: ${m.optString("content")}",15f))}}catch(e:Exception){c.addView(text(e.message?:"Hata"))}}}
+    private fun notifications(){val l=base("Bildirimler");val s=scroll();val c=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL};s.addView(c);l.addView(s);attachNav(l);lifecycleScope.launch{try{val j=api.notifications();c.addView(text("Okunmamış: ${j.optInt("unread_count")}",18f));val a=j.getJSONArray("notifications");for(i in 0 until a.length()){val n=a.getJSONObject(i);c.addView(text("${n.optString("actor_username","Wiantex")} · ${n.optString("type","Bildirim")}",15f))}}catch(e:Exception){c.addView(text(e.message?:"Hata"))}}}
+    private fun profile(){val l=base("Profil");val lookup=EditText(this).apply{hint="Kullanıcı adı (opsiyonel)";setTextColor(Color.WHITE);setHintTextColor(Color.GRAY)};val c=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL};l.addView(lookup);l.addView(button("Profili Aç"){loadProfile(lookup.text.toString(),c)});l.addView(c,LinearLayout.LayoutParams(-1,0,1f));l.addView(button("Çıkış Yap"){api.clear();username=null;csrf="";show("login")});attachNav(l);setContentView(l);loadProfile("",c)}
+    private fun loadProfile(name:String,c:LinearLayout){lifecycleScope.launch{try{val p=api.profile(name.ifBlank{null}).getJSONObject("profile");c.removeAllViews();c.addView(text(p.optString("username"),24f));c.addView(text(p.optString("role_name","Üye"),16f));c.addView(text(p.optString("bio","")));c.addView(text("Konular ${p.optInt("topic_count")} · Mesajlar ${p.optInt("post_count")} · Beğeniler ${p.optInt("like_count")}"))}catch(e:Exception){c.removeAllViews();c.addView(text(e.message?:"Hata"))}}}
+}
