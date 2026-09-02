@@ -1,0 +1,9 @@
+using WiantexApp.Services;
+namespace WiantexApp;
+public class MessagesPage:BaseContentPage
+{
+    readonly Entry target=new(){Placeholder="Kullanıcı adı"}; readonly Editor input=new(){Placeholder="Mesaj yaz…",AutoSize=EditorAutoSizeOption.TextChanges,HeightRequest=72}; readonly VerticalStackLayout messages=new(){Spacing=8};
+    public MessagesPage(){Title="Mesajlar";var send=new Button{Text="Gönder"};send.Clicked+=async(_,_)=>await Send();var load=new Button{Text="Konuşmayı Aç"};load.Clicked+=async(_,_)=>await Load();Content=new VerticalStackLayout{Padding=18,Children={H("Mesajlar"),target,new HorizontalStackLayout{Spacing=8,Children={load}},new ScrollView{VerticalOptions=LayoutOptions.FillAndExpand,Content=messages},new Grid{ColumnDefinitions={new ColumnDefinition{Width=GridLength.Star},new ColumnDefinition{Width=88}},ColumnSpacing=8,Children={input,send}}}};}
+    async Task Load(){messages.Children.Clear();try{using var d=await AppState.Api.MessagesAsync(target.Text??"");foreach(var m in d.RootElement.GetProperty("messages").EnumerateArray()){var mine=m.GetProperty("mine").GetBoolean();messages.Children.Add(new Border{Padding=10,HorizontalOptions=mine?LayoutOptions.End:LayoutOptions.Start,BackgroundColor=mine?Color.FromArgb("#5B3FC4"):Color.FromArgb("#151222"),Stroke=Colors.Transparent,StrokeShape=new RoundRectangle{CornerRadius=14},Content=new Label{Text=m.GetProperty("content").GetString(),MaximumWidthRequest=320}});}}catch(Exception ex){messages.Children.Add(M(ex.Message));}}
+    async Task Send(){try{if(string.IsNullOrWhiteSpace(target.Text)||string.IsNullOrWhiteSpace(input.Text))return;using var d=await AppState.Api.SendMessageAsync(target.Text!,input.Text!,AppState.CsrfToken??"");input.Text=string.Empty;await Load();}catch(Exception ex){await DisplayAlert("Mesaj gönderilemedi",ex.Message,"Tamam");}}
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:local="clr-namespace:WiantexApp" x:Class="WiantexApp.AppShell" FlyoutBehavior="Flyout" BackgroundColor="#0B0A14">
+  <Shell.FlyoutHeader>
+    <Grid Padding="24,28" BackgroundColor="#151222">
+      <Image Source="wiantex-logo.png" HeightRequest="54" HorizontalOptions="Start" Aspect="AspectFit" />
+    </Grid>
+  </Shell.FlyoutHeader>
+  <TabBar>
+    <ShellContent Title="Ana Sayfa" ContentTemplate="{DataTemplate local:HomePage}" Route="home" />
+    <ShellContent Title="Forum" ContentTemplate="{DataTemplate local:ForumPage}" Route="forum" />
+    <ShellContent Title="Mesajlar" ContentTemplate="{DataTemplate local:MessagesPage}" Route="messages" />
+    <ShellContent Title="Bildirimler" ContentTemplate="{DataTemplate local:NotificationsPage}" Route="notifications" />
+    <ShellContent Title="Üyeler" ContentTemplate="{DataTemplate local:MembersPage}" Route="members" />
+    <ShellContent Title="Profil" ContentTemplate="{DataTemplate local:ProfilePage}" Route="profile" />
+  </TabBar>
+</Shell>
