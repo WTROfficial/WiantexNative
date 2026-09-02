@@ -24,7 +24,7 @@ jobs:
 
       - name: Restore
         working-directory: native/WiantexApp
-        run: dotnet restore WiantexApp.csproj
+        run: dotnet restore WiantexApp.csproj -p:TargetFramework=net9.0-android
 
       - name: Publish APK
         working-directory: native/WiantexApp
@@ -62,11 +62,11 @@ jobs:
 
       - name: Install MAUI workload
         shell: pwsh
-        run: dotnet workload install maui-windows
+        run: dotnet workload install maui
 
-      - name: Restore
+      - name: Restore Windows target
         working-directory: native/WiantexApp
-        run: dotnet restore WiantexApp.csproj
+        run: dotnet restore WiantexApp.csproj -p:TargetFramework=net9.0-windows10.0.19041.0 -r win-x64 -p:EnableWindowsTargeting=true
 
       - name: Publish Windows x64
         working-directory: native/WiantexApp
