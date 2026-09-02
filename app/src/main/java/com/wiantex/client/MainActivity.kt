@@ -2,31 +2,336 @@ package com.wiantex.client
 
 import android.graphics.Color
 import android.os.Bundle
-import android.view.View
-import android.widget.*
+import android.text.InputType
+import android.view.Gravity
+import android.widget.EditText
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.button.MaterialButton
 import kotlinx.coroutines.launch
-import org.json.JSONObject
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var api: Api; private lateinit var root: LinearLayout
-    private val bg=Color.rgb(9,8,20); private val card=Color.rgb(19,17,38); private val cyan=Color.rgb(49,200,255); private var csrf=""; private var username:String?=null
-    override fun onCreate(b:Bundle?){super.onCreate(b); api=Api(this); username=api.username(); csrf=api.csrf(); show(if(username.isNullOrBlank()) "login" else "home")}
-    private fun base(title:String): LinearLayout { root=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL; setBackgroundColor(bg); setPadding(18,18,18,18)}; val t=TextView(this).apply{text=title;textSize=26f;setTextColor(Color.WHITE);setPadding(0,0,0,16)}; root.addView(t); return root }
-    private fun button(s:String, action:()->Unit): MaterialButton = MaterialButton(this).apply{text=s;setOnClickListener{action()};setTextColor(Color.WHITE);setBackgroundColor(Color.rgb(96,71,215))}
-    private fun text(s:String,size:Float=14f)=TextView(this).apply{text=s;textSize=size;setTextColor(Color.LTGRAY);setPadding(0,5,0,5)}
-    private fun scroll(): ScrollView = ScrollView(this).apply{layoutParams=LinearLayout.LayoutParams(-1,0,1f)}
-    private fun show(which:String){ when(which){"login"->login();"home"->home();"forum"->forum();"messages"->messages();"notifications"->notifications();"profile"->profile()} }
-    private fun login(){ val l=base("Wiantex"); l.addView(text("Native Android Client",14f)); val u=EditText(this).apply{hint="Kullanıcı adı veya e-posta";setTextColor(Color.WHITE);setHintTextColor(Color.GRAY)}; val p=EditText(this).apply{hint="Şifre";inputType=0x81;setTextColor(Color.WHITE);setHintTextColor(Color.GRAY)}; val status=text(""); l.addView(u);l.addView(p);l.addView(button("Giriş Yap"){ status.text=""; lifecycleScope.launch{try{val j=api.login(u.text.toString().trim(),p.text.toString()); if(j.optBoolean("ok")){val us=j.getJSONObject("user");username=us.optString("username");csrf=j.optString("csrf_token");api.saveSession(username!!,csrf);show("home")} else status.text=j.optString("message","Giriş başarısız")}catch(e:Exception){status.text=e.message}}}}); l.addView(status);setContentView(l)}
-    private fun navButtons(): LinearLayout = LinearLayout(this).apply{orientation=LinearLayout.HORIZONTAL;gravity=1; val names=arrayOf("Ana Sayfa" to "home","Forum" to "forum","Mesaj" to "messages","Bildirim" to "notifications","Profil" to "profile"); names.forEach{val b=button(it.first){show(it.second)}; b.textSize=11f; addView(b,LinearLayout.LayoutParams(0,58,1f))}}
-    private fun attachNav(l:LinearLayout){l.addView(navButtons(),LinearLayout.LayoutParams(-1,64))}
-    private fun home(){ val l=base("Ana Sayfa");l.addView(text("Hoş geldin, ${username ?: "Wiantex"}",18f));l.addView(text("Forum, mesajlar, bildirimler ve profil tek uygulamada."));l.addView(button("Forum" ){show("forum")});l.addView(button("Profilim"){show("profile")});attachNav(l);setContentView(l)}
-    private fun forum(){ val l=base("Forum"); val s=scroll(); val c=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL};s.addView(c);l.addView(s);attachNav(l);setContentView(l);lifecycleScope.launch{try{val j=api.forum();val a=j.getJSONArray("topics");for(i in 0 until a.length()){val t=a.getJSONObject(i);c.addView(text("${t.optString("title")}\n${t.optString("username")} · ${t.optString("category_name")}",16f))}}catch(e:Exception){c.addView(text(e.message?:"Hata"))}}}
-    private fun messages(){ val l=base("Mesajlar");val target=EditText(this).apply{hint="Kullanıcı adı";setTextColor(Color.WHITE);setHintTextColor(Color.GRAY)};val body=EditText(this).apply{hint="Mesaj yaz…";setTextColor(Color.WHITE);setHintTextColor(Color.GRAY);minLines=3};val out=scroll();val c=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL};out.addView(c);l.addView(target);l.addView(button("Konuşmayı Aç"){loadMessages(target,c)});l.addView(out);l.addView(body);l.addView(button("Gönder"){lifecycleScope.launch{try{api.sendMessage(target.text.toString().trim(),body.text.toString().trim(),csrf);body.setText("");loadMessages(target,c)}catch(e:Exception){Toast.makeText(this@MainActivity,e.message,Toast.LENGTH_LONG).show()}}});attachNav(l);setContentView(l)}
-    private fun loadMessages(target:EditText,c:LinearLayout){if(target.text.isNullOrBlank())return;lifecycleScope.launch{try{val a=api.messages(target.text.toString().trim()).getJSONArray("messages");c.removeAllViews();for(i in 0 until a.length()){val m=a.getJSONObject(i);c.addView(text("${m.optString("sender_username")}: ${m.optString("content")}",15f))}}catch(e:Exception){c.addView(text(e.message?:"Hata"))}}}
-    private fun notifications(){val l=base("Bildirimler");val s=scroll();val c=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL};s.addView(c);l.addView(s);attachNav(l);lifecycleScope.launch{try{val j=api.notifications();c.addView(text("Okunmamış: ${j.optInt("unread_count")}",18f));val a=j.getJSONArray("notifications");for(i in 0 until a.length()){val n=a.getJSONObject(i);c.addView(text("${n.optString("actor_username","Wiantex")} · ${n.optString("type","Bildirim")}",15f))}}catch(e:Exception){c.addView(text(e.message?:"Hata"))}}}
-    private fun profile(){val l=base("Profil");val lookup=EditText(this).apply{hint="Kullanıcı adı (opsiyonel)";setTextColor(Color.WHITE);setHintTextColor(Color.GRAY)};val c=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL};l.addView(lookup);l.addView(button("Profili Aç"){loadProfile(lookup.text.toString(),c)});l.addView(c,LinearLayout.LayoutParams(-1,0,1f));l.addView(button("Çıkış Yap"){api.clear();username=null;csrf="";show("login")});attachNav(l);setContentView(l);loadProfile("",c)}
-    private fun loadProfile(name:String,c:LinearLayout){lifecycleScope.launch{try{val p=api.profile(name.ifBlank{null}).getJSONObject("profile");c.removeAllViews();c.addView(text(p.optString("username"),24f));c.addView(text(p.optString("role_name","Üye"),16f));c.addView(text(p.optString("bio","")));c.addView(text("Konular ${p.optInt("topic_count")} · Mesajlar ${p.optInt("post_count")} · Beğeniler ${p.optInt("like_count")}"))}catch(e:Exception){c.removeAllViews();c.addView(text(e.message?:"Hata"))}}}
+    private lateinit var api: Api
+    private val background = Color.rgb(9, 8, 20)
+    private val purple = Color.rgb(96, 71, 215)
+    private var csrf = ""
+    private var username: String? = null
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        api = Api(this)
+        username = api.username()
+        csrf = api.csrf()
+        show(if (username.isNullOrBlank()) "login" else "home")
+    }
+
+    private fun base(title: String): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setBackgroundColor(background)
+            setPadding(18, 18, 18, 18)
+
+            addView(TextView(this@MainActivity).apply {
+                text = title
+                textSize = 26f
+                setTextColor(Color.WHITE)
+                setPadding(0, 0, 0, 16)
+            })
+        }
+    }
+
+    private fun label(value: String, size: Float = 14f): TextView {
+        return TextView(this).apply {
+            text = value
+            textSize = size
+            setTextColor(Color.LTGRAY)
+            setPadding(0, 6, 0, 6)
+        }
+    }
+
+    private fun button(title: String, action: () -> Unit): MaterialButton {
+        return MaterialButton(this).apply {
+            text = title
+            setTextColor(Color.WHITE)
+            setBackgroundColor(purple)
+            setOnClickListener { action() }
+        }
+    }
+
+    private fun scroll(): ScrollView {
+        return ScrollView(this).apply {
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                0,
+                1f
+            )
+        }
+    }
+
+    private fun show(page: String) {
+        when (page) {
+            "login" -> login()
+            "home" -> home()
+            "forum" -> forum()
+            "messages" -> messages()
+            "notifications" -> notifications()
+            "profile" -> profile()
+        }
+    }
+
+    private fun login() {
+        val layout = base("Wiantex")
+        layout.addView(label("Native Android Client", 14f))
+
+        val usernameInput = EditText(this).apply {
+            hint = "Kullanıcı adı veya e-posta"
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+            singleLine = true
+        }
+        val passwordInput = EditText(this).apply {
+            hint = "Şifre"
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+            singleLine = true
+        }
+        val status = label("")
+
+        layout.addView(usernameInput)
+        layout.addView(passwordInput)
+        layout.addView(button("Giriş Yap") {
+            lifecycleScope.launch {
+                try {
+                    val result = api.login(
+                        usernameInput.text.toString().trim(),
+                        passwordInput.text.toString()
+                    )
+                    if (result.optBoolean("ok")) {
+                        val user = result.getJSONObject("user")
+                        username = user.optString("username")
+                        csrf = result.optString("csrf_token")
+                        api.saveSession(username.orEmpty(), csrf)
+                        show("home")
+                    } else {
+                        status.text = result.optString("message", "Giriş başarısız")
+                    }
+                } catch (e: Exception) {
+                    status.text = e.message ?: "Bağlantı hatası"
+                }
+            }
+        })
+        layout.addView(status)
+        setContentView(layout)
+    }
+
+    private fun navButtons(): LinearLayout {
+        return LinearLayout(this).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            val pages = listOf(
+                "Ana Sayfa" to "home",
+                "Forum" to "forum",
+                "Mesaj" to "messages",
+                "Bildirim" to "notifications",
+                "Profil" to "profile"
+            )
+            pages.forEach { (title, page) ->
+                val b = button(title) { show(page) }
+                b.textSize = 11f
+                addView(b, LinearLayout.LayoutParams(0, 58, 1f))
+            }
+        }
+    }
+
+    private fun attachNav(layout: LinearLayout) {
+        layout.addView(navButtons(), LinearLayout.LayoutParams.MATCH_PARENT, 64)
+    }
+
+    private fun home() {
+        val layout = base("Ana Sayfa")
+        layout.addView(label("Hoş geldin, ${username ?: "Wiantex"}", 18f))
+        layout.addView(label("Forum, mesajlar, bildirimler ve profil tek uygulamada."))
+        layout.addView(button("Forum") { show("forum") })
+        layout.addView(button("Profilim") { show("profile") })
+        attachNav(layout)
+        setContentView(layout)
+    }
+
+    private fun forum() {
+        val layout = base("Forum")
+        val scrollView = scroll()
+        val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        scrollView.addView(content)
+        layout.addView(scrollView)
+        attachNav(layout)
+        setContentView(layout)
+
+        lifecycleScope.launch {
+            try {
+                val topics = api.forum().getJSONArray("topics")
+                for (i in 0 until topics.length()) {
+                    val topic = topics.getJSONObject(i)
+                    content.addView(
+                        label(
+                            "${topic.optString("title")}\n${topic.optString("username")} · ${topic.optString("category_name")}",
+                            16f
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                content.addView(label(e.message ?: "Hata"))
+            }
+        }
+    }
+
+    private fun messages() {
+        val layout = base("Mesajlar")
+        val target = EditText(this).apply {
+            hint = "Kullanıcı adı"
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+            singleLine = true
+        }
+        val body = EditText(this).apply {
+            hint = "Mesaj yaz…"
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+            minLines = 3
+        }
+        val scrollView = scroll()
+        val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        scrollView.addView(content)
+
+        layout.addView(target)
+        layout.addView(button("Konuşmayı Aç") { loadMessages(target, content) })
+        layout.addView(scrollView)
+        layout.addView(body)
+        layout.addView(button("Gönder") {
+            val targetName = target.text.toString().trim()
+            val message = body.text.toString().trim()
+            if (targetName.isBlank() || message.isBlank()) return@button
+
+            lifecycleScope.launch {
+                try {
+                    api.sendMessage(targetName, message, csrf)
+                    body.setText("")
+                    loadMessages(target, content)
+                } catch (e: Exception) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        e.message ?: "Mesaj gönderilemedi",
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        })
+        attachNav(layout)
+        setContentView(layout)
+    }
+
+    private fun loadMessages(target: EditText, content: LinearLayout) {
+        val targetName = target.text.toString().trim()
+        if (targetName.isBlank()) return
+
+        lifecycleScope.launch {
+            try {
+                val messages = api.messages(targetName).getJSONArray("messages")
+                content.removeAllViews()
+                for (i in 0 until messages.length()) {
+                    val message = messages.getJSONObject(i)
+                    content.addView(
+                        label(
+                            "${message.optString("sender_username")}: ${message.optString("content")}",
+                            15f
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                content.removeAllViews()
+                content.addView(label(e.message ?: "Hata"))
+            }
+        }
+    }
+
+    private fun notifications() {
+        val layout = base("Bildirimler")
+        val scrollView = scroll()
+        val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+        scrollView.addView(content)
+        layout.addView(scrollView)
+        attachNav(layout)
+        setContentView(layout)
+
+        lifecycleScope.launch {
+            try {
+                val result = api.notifications()
+                content.addView(label("Okunmamış: ${result.optInt("unread_count")}", 18f))
+                val notifications = result.getJSONArray("notifications")
+                for (i in 0 until notifications.length()) {
+                    val notification = notifications.getJSONObject(i)
+                    content.addView(
+                        label(
+                            "${notification.optString("actor_username", "Wiantex")} · ${notification.optString("type", "Bildirim")}",
+                            15f
+                        )
+                    )
+                }
+            } catch (e: Exception) {
+                content.addView(label(e.message ?: "Hata"))
+            }
+        }
+    }
+
+    private fun profile() {
+        val layout = base("Profil")
+        val lookup = EditText(this).apply {
+            hint = "Kullanıcı adı (opsiyonel)"
+            setTextColor(Color.WHITE)
+            setHintTextColor(Color.GRAY)
+            singleLine = true
+        }
+        val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
+
+        layout.addView(lookup)
+        layout.addView(button("Profili Aç") { loadProfile(lookup.text.toString(), content) })
+        layout.addView(content, LinearLayout.LayoutParams.MATCH_PARENT, 0).apply {
+            (this as LinearLayout.LayoutParams).weight = 1f
+        }
+        layout.addView(button("Çıkış Yap") {
+            api.clear()
+            username = null
+            csrf = ""
+            show("login")
+        })
+        attachNav(layout)
+        setContentView(layout)
+        loadProfile("", content)
+    }
+
+    private fun loadProfile(name: String, content: LinearLayout) {
+        lifecycleScope.launch {
+            try {
+                val profile = api.profile(name.ifBlank { null }).getJSONObject("profile")
+                content.removeAllViews()
+                content.addView(label(profile.optString("username"), 24f))
+                content.addView(label(profile.optString("role_name", "Üye"), 16f))
+                content.addView(label(profile.optString("bio", "")))
+                content.addView(
+                    label(
+                        "Konular ${profile.optInt("topic_count")} · " +
+                            "Mesajlar ${profile.optInt("post_count")} · " +
+                            "Beğeniler ${profile.optInt("like_count")}"
+                    )
+                )
+            } catch (e: Exception) {
+                content.removeAllViews()
+                content.addView(label(e.message ?: "Hata"))
+            }
+        }
+    }
 }
