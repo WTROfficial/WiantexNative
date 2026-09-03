@@ -2,9 +2,9 @@
     <style name="Theme.Wiantex" parent="Theme.Material3.DayNight.NoActionBar">
         <item name="android:fontFamily">sans</item>
         <item name="android:windowLightStatusBar">false</item>
-        <item name="android:statusBarColor">#070812</item>
-        <item name="android:navigationBarColor">#070812</item>
-        <item name="android:windowActionModeOverlay">true</item>
-        <item name="android:colorAccent">#38BDF8</item>
+        <item name="android:statusBarColor">#080712</item>
+        <item name="android:navigationBarColor">#080712</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        <item name="android:colorAccent">#704EE8</item>
     </style>
 </resources>
