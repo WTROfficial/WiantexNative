@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="WiantexApp.App">
+    <Application.Resources>
+        <Color x:Key="PageBg">#090814</Color>
+        <Color x:Key="PanelBg">#131126</Color>
+        <Color x:Key="Panel2Bg">#18152E</Color>
+        <Color x:Key="TextMain">#F7F5FF</Color>
+        <Color x:Key="TextMuted">#9D97B5</Color>
+        <Color x:Key="Accent">#7658FF</Color>
+        <Color x:Key="Accent2">#31C8FF</Color>
+        <Color x:Key="Danger">#FF6685</Color>
+        <Style TargetType="ContentPage">
+            <Setter Property="BackgroundColor" Value="{StaticResource PageBg}" />
+        </Style>
+        <Style TargetType="Label">
+            <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+        </Style>
+        <Style TargetType="Entry">
+            <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+            <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+            <Setter Property="BackgroundColor" Value="{StaticResource PanelBg}" />
+        </Style>
+        <Style TargetType="Editor">
+            <Setter Property="TextColor" Value="{StaticResource TextMain}" />
+            <Setter Property="PlaceholderColor" Value="{StaticResource TextMuted}" />
+            <Setter Property="BackgroundColor" Value="{StaticResource PanelBg}" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
+            <Setter Property="TextColor" Value="White" />
+            <Setter Property="CornerRadius" Value="12" />
+            <Setter Property="Padding" Value="16,12" />
+        </Style>
+    </Application.Resources>
+</Application>

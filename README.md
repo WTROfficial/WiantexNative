@@ -1,7 +1,10 @@
-# Wiantex Kotlin Android Client — UI Final
+# Wiantex Native Android Client (Kotlin)
 
-Native Kotlin Android client. No WebView.
+Pure native Android project written in Kotlin (no WebView, no MAUI). Connects to Wiantex native JSON APIs:
+- Login/session
+- Forum
+- Messages
+- Profile
+- Notifications
 
-This version refreshes the UI based on the supplied Wiantex screenshot: the main area is always visible, the bottom navigation is compact and stable, and screens use a dark Wiantex-style card layout.
-
-Build with GitHub Actions workflow in `.github/workflows/android.yml`.
+Open in Android Studio and build APK with Build > Generate App Bundle / APK > Generate APK.

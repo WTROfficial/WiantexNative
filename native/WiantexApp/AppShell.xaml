@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+       xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+       xmlns:local="clr-namespace:WiantexApp"
+       x:Class="WiantexApp.AppShell"
+       FlyoutBehavior="Flyout"
+       Shell.NavBarIsVisible="True"
+       Shell.BackgroundColor="#090814"
+       Shell.ForegroundColor="#F7F5FF"
+       Shell.TitleColor="#F7F5FF">
+    <Shell.FlyoutHeader>
+        <Grid Padding="22,28" BackgroundColor="#121026">
+            <VerticalStackLayout Spacing="7">
+                <Image Source="wiantex-logo.png" HeightRequest="52" HorizontalOptions="Start" Aspect="AspectFit" />
+                <Label Text="Native Client" FontSize="12" TextColor="#31C8FF" />
+                <Label Text="Hızlı • Güvenli • Wiantex" FontSize="13" TextColor="#9D97B5" />
+            </VerticalStackLayout>
+        </Grid>
+    </Shell.FlyoutHeader>
+    <FlyoutItem Title="Ana Sayfa" Route="home">
+        <ShellContent ContentTemplate="{DataTemplate local:HomePage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Forum" Route="forum">
+        <ShellContent ContentTemplate="{DataTemplate local:ForumPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Mesajlar" Route="messages">
+        <ShellContent ContentTemplate="{DataTemplate local:MessagesPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Bildirimler" Route="notifications">
+        <ShellContent ContentTemplate="{DataTemplate local:NotificationsPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Üyeler" Route="members">
+        <ShellContent ContentTemplate="{DataTemplate local:MembersPage}" />
+    </FlyoutItem>
+    <FlyoutItem Title="Profil" Route="profile">
+        <ShellContent ContentTemplate="{DataTemplate local:ProfilePage}" />
+    </FlyoutItem>
+</Shell>
