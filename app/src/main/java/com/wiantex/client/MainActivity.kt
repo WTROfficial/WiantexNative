@@ -330,7 +330,7 @@ class MainActivity : AppCompatActivity() {
         list.addView(actionCard("Forum", "Yeni konuları ve aktif tartışmaları gör.", "Foruma Git") { showForum() })
         list.addView(actionCard("Mesajlar", "Özel konuşmalarını aç ve mesaj gönder.", "Mesajlara Git") { showMessages() })
         list.addView(actionCard("Bildirimler", "Hesabındaki hareketleri takip et.", "Bildirimleri Gör") { showNotifications() })
-        contentHost.addView(scroll, ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+        contentHost.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0).apply { weight = 1f })
         setContentView(root)
     }
 
@@ -341,7 +341,7 @@ class MainActivity : AppCompatActivity() {
         val scroll = ScrollView(this)
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         scroll.addView(list)
-        contentHost.addView(scroll, ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+        contentHost.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0).apply { weight = 1f })
         list.addView(bodyLabel("Konular yükleniyor…"))
         lifecycleScope.launch {
             try {
@@ -385,7 +385,7 @@ class MainActivity : AppCompatActivity() {
             setPadding(0, dp(10), 0, dp(10))
         }
         scroll.addView(messagesBox)
-        contentHost.addView(scroll, ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+        contentHost.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0).apply { weight = 1f })
 
         val composer = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
@@ -468,7 +468,7 @@ class MainActivity : AppCompatActivity() {
         val scroll = ScrollView(this)
         val list = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL }
         scroll.addView(list)
-        contentHost.addView(scroll, ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+        contentHost.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0).apply { weight = 1f })
         list.addView(bodyLabel("Bildirimler yükleniyor…"))
         lifecycleScope.launch {
             try {
@@ -516,7 +516,7 @@ class MainActivity : AppCompatActivity() {
         val scroll = ScrollView(this)
         val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(0, dp(12), 0, dp(10)) }
         scroll.addView(box)
-        contentHost.addView(scroll, ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f)
+        contentHost.addView(scroll, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0).apply { weight = 1f })
         contentHost.addView(secondaryButton("Çıkış Yap") {
             api.clear()
             username = null
