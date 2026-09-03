@@ -1,7 +1,11 @@
-# Wiantex Kotlin Android Client — UI Final
+# Wiantex Android Client — WebView Edition
 
-Native Kotlin Android client. No WebView.
+Kotlin Android app using WebView to load the live Wiantex website directly.
 
-This version refreshes the UI based on the supplied Wiantex screenshot: the main area is always visible, the bottom navigation is compact and stable, and screens use a dark Wiantex-style card layout.
-
-Build with GitHub Actions workflow in `.github/workflows/android.yml`.
+- URL: https://www.wiantex.com/
+- JavaScript + DOM storage enabled
+- Cookies/session preserved
+- File upload support
+- Back-button navigation
+- External links open in the browser
+- Wiantex logo used as application icon
